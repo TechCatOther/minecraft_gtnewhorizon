@@ -34,6 +34,7 @@ RUN unzip /server/GTNewHorizonsServer-1.7.10-${version}.zip -d /server && \
 # Custom settings
 ADD ./eula.txt /server/eula.txt
 ADD ./startserver.sh /server/startserver.sh
+ADD ./server.properties /server/config_core/server.properties
 
 # Rights
 RUN addgroup minecraft && \
