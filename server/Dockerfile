@@ -6,13 +6,9 @@ ENV minram='2G'
 ENV EULA='TRUE'
 
 
-RUN addgroup minecraft && \
-    adduser -G minecraft -S -h /server minecraft 
-
-USER minecraft 
-
-
-RUN mkdir /server/logs && \
+# Moving logs and configs to volumes from /server folder
+RUN mkdir /server && \
+    mkdir /server/logs && \
     mkdir /server/logs_core && \
     mkdir /server/config && \
     mkdir /server/config_core && \
@@ -28,18 +24,24 @@ RUN mkdir /server/logs && \
     ln -s /server/config_core/usercache.json /server/usercache.json && \
     ln -s /server/config_core/whitelist.json /server/whitelist.json && \
     ln -s /server/config_core/banned-players.json /server/banned-players.json && \
-    ln -s /server/config_core/banned-ips.json /server/banned-ips.json && \
-    chown -R minecraft:minecraft /server
+    ln -s /server/config_core/banned-ips.json /server/banned-ips.json
 
-ADD --chown=minecraft:minecraft http://downloads.gtnewhorizons.com/?do=download&file=ServerPacks%2FGTNewHorizonsServer-1.7.10-${version}.zip /server
-
+# Modpack files
+ADD http://downloads.gtnewhorizons.com/?do=download&file=ServerPacks%2FGTNewHorizonsServer-1.7.10-${version}.zip /server
 RUN unzip /server/GTNewHorizonsServer-1.7.10-${version}.zip -d /server && \
     rm -f /server/GTNewHorizonsServer-1.7.10-${version}.zip 
 
-ADD --chown=minecraft:minecraft ./eula.txt /server/eula.txt
-ADD --chown=minecraft:minecraft ./startserver.sh /server/startserver.sh
-RUN chmod 755 /server/startserver.sh
+# Custom settings
+ADD ./eula.txt /server/eula.txt
+ADD ./startserver.sh /server/startserver.sh
 
+# Rights
+RUN addgroup minecraft && \
+    adduser -G minecraft -S -h /server minecraft && \
+    chmod 755 /server/startserver.sh && \
+    chown -R minecraft:minecraft /server
+
+# Input and Output definitions
 VOLUME /server/logs
 VOLUME /server/logs_core
 VOLUME /server/config
@@ -47,10 +49,11 @@ VOLUME /server/config_core
 VOLUME /server/asm
 VOLUME /server/world
 
-WORKDIR /server
-
 EXPOSE 25565/tcp
 EXPOSE 25565/udp
+
+WORKDIR /server
+USER minecraft 
 
 CMD ["/server/startserver.sh"]
 
