@@ -1,0 +1,46 @@
+version: '3.4'
+services:
+  minecraft:
+    image: rseleznev/gtnewhorizon:latest
+    ports:
+      - 25565:25565/tcp
+      - 25565:25565/udp
+    volumes:
+      - type: volume
+        source: minecraft_log
+        target: /server/logs
+      - type: volume
+        source: minecraft_logcore
+        target: /server/logs_core
+      - type: volume
+        source: minecraft_config
+        target: /server/config
+      - type: volume
+        source: minecraft_configcore
+        target: /server/config_core
+      - type: volume
+        source: minecraft_asm
+        target: /server/asm
+      - type: volume
+        source: minecraft_world
+        target: /server/world
+    tmpfs:
+      - /tmp
+    stop_grace_period: 2m
+    ipc: private
+    tty: true
+    stdin_open: true
+
+volumes:
+  minecraft_log:
+    driver: local
+  minecraft_logcore:
+    driver: local
+  minecraft_config:
+    driver: local
+  minecraft_configcore:
+    driver: local
+  minecraft_asm:
+    driver: local
+  minecraft_world:
+    driver: local
